@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8b5a2b">
+<title>Bible Spine Hub Placement Calculator</title>
+<style>
+  :root {
+    --bg: #faf6ef;
+    --panel: #f3ead9;
+    --panel-2: #ebdfca;
+    --text: #3d2b1f;
+    --muted: #7a6a5a;
+    --accent: #8b5a2b;
+    --accent-strong: #6b4220;
+    --border: #d9c9b1;
+    --warn-bg: #f7e9cf;
+    --warn-text: #6b4f1c;
+    --advisory-bg: #ece1d3;
+    --advisory-text: #5a4632;
+    --spine-fill: #c9a982;
+    --spine-margin: #b89770;
+    --hub-fill: #4a2f1d;
+    --shadow: 0 1px 2px rgba(60, 40, 20, 0.08), 0 4px 12px rgba(60, 40, 20, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1f1813;
+      --panel: #2a221b;
+      --panel-2: #342a21;
+      --text: #ebe0d0;
+      --muted: #a89683;
+      --accent: #d2a072;
+      --accent-strong: #e8b988;
+      --border: #3d2f24;
+      --warn-bg: #3a2d18;
+      --warn-text: #e9c98a;
+      --advisory-bg: #312820;
+      --advisory-text: #c9b89e;
+      --spine-fill: #6b4f37;
+      --spine-margin: #543d29;
+      --hub-fill: #f0d9b5;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  header {
+    text-align: center;
+    padding: 8px 0 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent-strong);
+    letter-spacing: 0.3px;
+  }
+
+  header p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 16px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+
+  .panel h2 {
+    margin: 0 0 14px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--accent-strong);
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 8px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    font-size: 18px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    min-height: 48px;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 90, 43, 0.18);
+  }
+
+  .reco-guide {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+
+  .reco-guide-title {
+    font-weight: 600;
+    color: var(--accent-strong);
+    margin-bottom: 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .reco-guide ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+
+  .reco-guide li {
+    padding: 2px 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .reco-guide li span:first-child { color: var(--text); }
+
+  .button-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  button {
+    flex: 1;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 14px 16px;
+    min-height: 48px;
+    border-radius: 8px;
+    border: 1.5px solid var(--accent);
+    cursor: pointer;
+    transition: filter 0.15s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fffaf2;
+  }
+
+  .btn-primary:hover { filter: brightness(0.95); }
+  .btn-primary:active { filter: brightness(0.88); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent);
+  }
+
+  .btn-secondary:hover { background: var(--panel-2); }
+
+  .alert {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .alert-error {
+    background: #f4d9d3;
+    color: #6b2a1c;
+    border-color: #d8a99c;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .alert-error {
+      background: #3a201a;
+      color: #f0c2b3;
+      border-color: #5a3024;
+    }
+  }
+
+  .alert-warn {
+    background: var(--warn-bg);
+    color: var(--warn-text);
+  }
+
+  .alert-advisory {
+    background: var(--advisory-bg);
+    color: var(--advisory-text);
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 12px;
+    background: var(--panel-2);
+    border-radius: 6px;
+    font-size: 15px;
+  }
+
+  .summary-row .label-text { color: var(--muted); }
+  .summary-row .value-text {
+    font-weight: 600;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color: var(--text);
+  }
+
+  .hub-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hub-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hub-list li:last-child { border-bottom: none; }
+
+  .hub-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 16px;
+  }
+
+  .hub-line .hub-name {
+    font-weight: 600;
+    color: var(--accent-strong);
+  }
+
+  .hub-line .hub-pos {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-weight: 600;
+    font-size: 17px;
+  }
+
+  .hub-instruction {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  /* Spine diagram */
+  .diagram-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 16px 0 8px;
+  }
+
+  .diagram {
+    display: flex;
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  .diagram-edges {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 2px 0;
+  }
+
+  .spine-rect {
+    position: relative;
+    width: 60px;
+    background: var(--spine-fill);
+    border: 1.5px solid var(--accent-strong);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .spine-margin-zone {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: var(--spine-margin);
+    opacity: 0.55;
+  }
+
+  .spine-hub {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: var(--hub-fill);
+    border-top: 1px solid rgba(0,0,0,0.15);
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+  }
+
+  .diagram-labels {
+    position: relative;
+    width: 60px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-strong);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  .diagram-label {
+    position: absolute;
+    left: 0;
+    transform: translateY(-50%);
+    white-space: nowrap;
+  }
+
+  details {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+
+  details summary {
+    cursor: pointer;
+    padding: 12px 14px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--accent-strong);
+    list-style: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  details summary::-webkit-details-marker { display: none; }
+
+  details summary::after {
+    content: " ▸";
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  details[open] summary::after {
+    content: " ▾";
+  }
+
+  .calc-steps {
+    padding: 0 14px 14px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13.5px;
+    color: var(--text);
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .reference-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    font-size: 14px;
+  }
+
+  .reference-card h3 {
+    margin: 0 0 4px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-strong);
+  }
+
+  .reference-card .source {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .reference-card dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px 14px;
+    margin: 0 0 10px;
+  }
+
+  .reference-card dt {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .reference-card dd {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .reference-card .note {
+    color: var(--muted);
+    font-size: 13px;
+    border-top: 1px dashed var(--border);
+    padding-top: 8px;
+  }
+
+  footer {
+    margin-top: 30px;
+    padding: 16px;
+    font-size: 13px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    line-height: 1.6;
+  }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 380px) {
+    header h1 { font-size: 20px; }
+    .panel { padding: 14px 12px; }
+    .reco-guide ul { font-size: 12.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Bible Spine Hub Placement</h1>
+    <p>Calculate head &amp; tail margins, spacing, and hub positions.</p>
+  </header>
+
+  <!-- Reference Card (always visible) -->
+  <section class="reference-card" aria-label="Reference card">
+    <h3>Hub Placement Reference</h3>
+    <div class="source">Source: Ideal Bible — 254mm spine, 4 hubs, 5mm thick</div>
+    <dl>
+      <dt>Head margin</dt><dd>10% of spine</dd>
+      <dt>Tail margin</dt><dd>15% of spine</dd>
+      <dt>Hub thickness</dt><dd>5mm (fixed — does not scale)</dd>
+      <dt>Spacing</dt><dd>Evenly distributed between hub 1 and hub N</dd>
+    </dl>
+    <div class="note">Note: Hub count scales with spine height. Hub thickness does not.</div>
+  </section>
+
+  <!-- Inputs -->
+  <section class="panel" aria-label="Inputs">
+    <h2>Measurements</h2>
+
+    <div class="field">
+      <label for="spine">Cover Spine Height (mm)</label>
+      <input type="number" id="spine" name="spine" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 254" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label for="hubs">Number of Hubs</label>
+      <input type="number" id="hubs" name="hubs" inputmode="numeric" step="1" min="2" max="8" placeholder="2 – 8" autocomplete="off">
+
+      <div class="reco-guide" aria-label="Hub count recommendation guide">
+        <div class="reco-guide-title">Recommended Hub Count</div>
+        <ul>
+          <li><span>Under 180mm</span><span>3 hubs</span></li>
+          <li><span>180 – 270mm</span><span>4 hubs</span></li>
+          <li><span>270 – 350mm</span><span>5 hubs</span></li>
+          <li><span>Over 350mm</span><span>6 hubs</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="button-row">
+      <button type="button" class="btn-primary" id="calc-btn">Calculate</button>
+      <button type="button" class="btn-secondary" id="reset-btn">Reset</button>
+    </div>
+  </section>
+
+  <div id="alerts"></div>
+
+  <!-- Output -->
+  <div id="output" class="hidden">
+
+    <section class="panel" aria-label="Spacing summary">
+      <h2>Spacing Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-row"><span class="label-text">Hub Thickness</span><span class="value-text">5.0 mm <small style="font-weight:400;color:var(--muted);">(fixed)</small></span></div>
+        <div class="summary-row"><span class="label-text">Head Margin</span><span class="value-text" id="out-head"></span></div>
+        <div class="summary-row"><span class="label-text">Tail Margin</span><span class="value-text" id="out-tail"></span></div>
+        <div class="summary-row"><span class="label-text">Center-to-Center Spacing</span><span class="value-text" id="out-ctc"></span></div>
+        <div class="summary-row"><span class="label-text">Number of Hubs</span><span class="value-text" id="out-n"></span></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Hub positions">
+      <h2>Hub Positions</h2>
+      <ul class="hub-list" id="hub-list"></ul>
+    </section>
+
+    <section class="panel" aria-label="Spine diagram">
+      <h2>Spine Diagram</h2>
+      <div class="diagram-wrap">
+        <div class="diagram">
+          <div class="diagram-edges" id="diagram-edges">
+            <div>Head</div>
+            <div>Tail</div>
+          </div>
+          <div class="spine-rect" id="spine-rect"></div>
+          <div class="diagram-labels" id="diagram-labels"></div>
+        </div>
+      </div>
+
+      <details>
+        <summary>Show Calculation Steps</summary>
+        <pre class="calc-steps" id="calc-steps"></pre>
+      </details>
+    </section>
+
+  </div>
+
+  <footer>
+    <strong>To save for offline use:</strong> In Safari (iOS/iPadOS), tap Share → Add to Home Screen.
+    In Chrome (Windows), open the browser menu → Save Page As → save as a complete webpage.
+    This file has no dependencies — it works fully offline once saved.
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var spineInput = document.getElementById("spine");
+  var hubsInput = document.getElementById("hubs");
+  var calcBtn = document.getElementById("calc-btn");
+  var resetBtn = document.getElementById("reset-btn");
+  var alertsEl = document.getElementById("alerts");
+  var outputEl = document.getElementById("output");
+
+  var outHead = document.getElementById("out-head");
+  var outTail = document.getElementById("out-tail");
+  var outCtc = document.getElementById("out-ctc");
+  var outN = document.getElementById("out-n");
+  var hubListEl = document.getElementById("hub-list");
+  var spineRect = document.getElementById("spine-rect");
+  var diagramLabels = document.getElementById("diagram-labels");
+  var calcStepsEl = document.getElementById("calc-steps");
+
+  function round1(n) {
+    return Math.round(n * 10) / 10;
+  }
+
+  function fmt(n) {
+    if (typeof n !== "number" || !isFinite(n)) return String(n);
+    return round1(n).toFixed(1);
+  }
+
+  function recommendedHubs(s) {
+    if (s < 180) return 3;
+    if (s < 270) return 4;
+    if (s <= 350) return 5;
+    return 6;
+  }
+
+  function clearAlerts() {
+    alertsEl.innerHTML = "";
+  }
+
+  function addAlert(kind, text) {
+    var div = document.createElement("div");
+    div.className = "alert alert-" + kind;
+    div.textContent = text;
+    alertsEl.appendChild(div);
+  }
+
+  function validate(s, n) {
+    var errors = [];
+    if (!isFinite(s) || s <= 0) {
+      errors.push("Cover Spine Height must be a number greater than 0.");
+    }
+    if (!isFinite(n) || !Number.isInteger(n)) {
+      errors.push("Number of Hubs must be a whole number.");
+    } else if (n < 2 || n > 8) {
+      errors.push("Number of Hubs must be between 2 and 8.");
+    }
+    return errors;
+  }
+
+  function calculate(s, n) {
+    var headMargin, tailMargin, span, ctc, positions, ctcDisplay;
+
+    if (n === 1) {
+      headMargin = round1(s * 0.10);
+      tailMargin = round1(s * 0.15);
+      ctc = null;
+      ctcDisplay = "N/A";
+      positions = [round1(s / 2)];
+    } else {
+      headMargin = round1(s * 0.10);
+      tailMargin = round1(s * 0.15);
+      span = round1(s - headMargin - tailMargin);
+      ctc = round1(span / (n - 1));
+      ctcDisplay = fmt(ctc) + " mm";
+      positions = [];
+      for (var k = 0; k < n; k++) {
+        positions.push(round1(headMargin + k * ctc));
+      }
+    }
+
+    return {
+      s: s,
+      n: n,
+      headMargin: headMargin,
+      tailMargin: tailMargin,
+      span: span,
+      ctc: ctc,
+      ctcDisplay: ctcDisplay,
+      positions: positions
+    };
+  }
+
+  function renderSummary(r) {
+    outHead.textContent = fmt(r.headMargin) + " mm";
+    outTail.textContent = fmt(r.tailMargin) + " mm";
+    outCtc.textContent = r.ctcDisplay;
+    outN.textContent = String(r.n);
+  }
+
+  function renderHubList(r) {
+    hubListEl.innerHTML = "";
+    for (var i = 0; i < r.positions.length; i++) {
+      var pos = r.positions[i];
+      var edgeStart = round1(pos - 2.5);
+      var edgeEnd = round1(pos + 2.5);
+
+      var li = document.createElement("li");
+
+      var line = document.createElement("div");
+      line.className = "hub-line";
+
+      var name = document.createElement("span");
+      name.className = "hub-name";
+      name.textContent = "Hub " + (i + 1);
+
+      var posSpan = document.createElement("span");
+      posSpan.className = "hub-pos";
+      posSpan.textContent = fmt(pos) + " mm from head";
+
+      line.appendChild(name);
+      line.appendChild(posSpan);
+
+      var instr = document.createElement("div");
+      instr.className = "hub-instruction";
+      instr.textContent = "Mark center at " + fmt(pos) + "mm — edge at " + fmt(edgeStart) + "mm to " + fmt(edgeEnd) + "mm";
+
+      li.appendChild(line);
+      li.appendChild(instr);
+      hubListEl.appendChild(li);
+    }
+  }
+
+  function renderDiagram(r) {
+    var s = r.s;
+    var heightPx = Math.max(180, Math.min(400, s));
+    spineRect.style.height = heightPx + "px";
+    spineRect.innerHTML = "";
+
+    // Head margin zone (top)
+    var headPct = (r.headMargin / s) * 100;
+    var tailPct = (r.tailMargin / s) * 100;
+
+    var headZone = document.createElement("div");
+    headZone.className = "spine-margin-zone";
+    headZone.style.top = "0";
+    headZone.style.height = headPct + "%";
+    spineRect.appendChild(headZone);
+
+    var tailZone = document.createElement("div");
+    tailZone.className = "spine-margin-zone";
+    tailZone.style.bottom = "0";
+    tailZone.style.height = tailPct + "%";
+    spineRect.appendChild(tailZone);
+
+    // Hubs (5mm thick, centered at each position)
+    var hubThickPct = (5 / s) * 100;
+
+    diagramLabels.innerHTML = "";
+    diagramLabels.style.height = heightPx + "px";
+
+    for (var i = 0; i < r.positions.length; i++) {
+      var pos = r.positions[i];
+      var centerPct = (pos / s) * 100;
+      var topPct = centerPct - hubThickPct / 2;
+
+      var band = document.createElement("div");
+      band.className = "spine-hub";
+      band.style.top = topPct + "%";
+      band.style.height = hubThickPct + "%";
+      spineRect.appendChild(band);
+
+      var label = document.createElement("div");
+      label.className = "diagram-label";
+      label.style.top = centerPct + "%";
+      label.textContent = "H" + (i + 1);
+      diagramLabels.appendChild(label);
+    }
+  }
+
+  function renderCalcSteps(r) {
+    var lines = [];
+    lines.push("Hub Thickness : 5mm (fixed)");
+    lines.push("Head Margin   : " + fmt(r.s) + " × 0.10 = " + fmt(r.headMargin) + "mm");
+    lines.push("Tail Margin   : " + fmt(r.s) + " × 0.15 = " + fmt(r.tailMargin) + "mm");
+
+    if (r.n === 1) {
+      lines.push("Avail. Span   : N/A (single hub centered)");
+      lines.push("CTC Spacing   : N/A");
+      lines.push("——");
+      lines.push("Hub 1  : " + fmt(r.s) + " ÷ 2 = " + fmt(r.positions[0]) + "mm");
+    } else {
+      lines.push("Avail. Span   : " + fmt(r.s) + " − " + fmt(r.headMargin) + " − " + fmt(r.tailMargin) + " = " + fmt(r.span) + "mm");
+      lines.push("CTC Spacing   : " + fmt(r.span) + " ÷ " + (r.n - 1) + " = " + fmt(r.ctc) + "mm");
+      lines.push("——");
+      for (var i = 0; i < r.positions.length; i++) {
+        var k = i;
+        var label = "Hub " + (i + 1);
+        var line;
+        if (k === 0) {
+          line = label + "  : " + fmt(r.headMargin) + "mm";
+        } else if (k === 1) {
+          line = label + "  : " + fmt(r.headMargin) + " + " + fmt(r.ctc) + " = " + fmt(r.positions[i]) + "mm";
+        } else {
+          line = label + "  : " + fmt(r.headMargin) + " + (" + k + " × " + fmt(r.ctc) + ") = " + fmt(r.positions[i]) + "mm";
+        }
+        lines.push(line);
+      }
+    }
+    calcStepsEl.textContent = lines.join("\n");
+  }
+
+  function isMobileViewport() {
+    return window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+  }
+
+  function onCalculate() {
+    clearAlerts();
+
+    var sRaw = spineInput.value.trim();
+    var nRaw = hubsInput.value.trim();
+
+    if (sRaw === "" || nRaw === "") {
+      addAlert("error", "Both Cover Spine Height and Number of Hubs are required.");
+      outputEl.classList.add("hidden");
+      return;
+    }
+
+    var s = parseFloat(sRaw);
+    var n = parseInt(nRaw, 10);
+
+    var errors = validate(s, n);
+    if (errors.length) {
+      for (var i = 0; i < errors.length; i++) addAlert("error", errors[i]);
+      outputEl.classList.add("hidden");
+      return;
+    }
+
+    // Soft warnings
+    if (s < 50 || s > 600) {
+      addAlert("warn", "Warning: Spine height is outside the typical Bible range — double-check your input.");
+    }
+
+    var rec = recommendedHubs(s);
+    if (n !== rec) {
+      addAlert("advisory", "Advisory: For a " + fmt(s) + "mm spine, " + rec + " hubs is the standard recommendation. You have selected " + n + ". This is fine — proceed if intentional.");
+    }
+
+    var r = calculate(s, n);
+
+    renderSummary(r);
+    renderHubList(r);
+    renderDiagram(r);
+    renderCalcSteps(r);
+
+    outputEl.classList.remove("hidden");
+
+    if (isMobileViewport()) {
+      // Defer to allow layout
+      setTimeout(function () {
+        outputEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
+    }
+  }
+
+  function onReset() {
+    spineInput.value = "";
+    hubsInput.value = "";
+    clearAlerts();
+    outputEl.classList.add("hidden");
+    spineInput.focus();
+  }
+
+  calcBtn.addEventListener("click", onCalculate);
+  resetBtn.addEventListener("click", onReset);
+
+  // Allow Enter to submit from either input
+  function enterToCalc(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onCalculate();
+    }
+  }
+  spineInput.addEventListener("keydown", enterToCalc);
+  hubsInput.addEventListener("keydown", enterToCalc);
+
+})();
+</script>
+</body>
+</html>
